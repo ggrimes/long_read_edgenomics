@@ -50,7 +50,7 @@ process NanoPlot {
   """
   NanoPlot \
   -t ${task.cpus} \
-  --fastq ${reads} \
+  --fastq ${reads_file} \
   --loglength \
   -o ${sample_id}_nanoplot \
   --plots dot
