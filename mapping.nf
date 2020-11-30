@@ -74,7 +74,7 @@ S ${sam} |\
 """
 }
 
-
+/*
 process bam_index {
 
 input:
@@ -132,3 +132,4 @@ process NanoPlot{
   --plots dot
   """
 }
+*/
