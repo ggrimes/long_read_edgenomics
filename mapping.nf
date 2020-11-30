@@ -89,7 +89,7 @@ samtools index ${bam}
 """
 }
 
-/*
+
 process flagstat{
 
 publishDir "results/QC/stats"
@@ -107,7 +107,7 @@ SRR7449790_Av_CIP_mm2_sorted.bam > stats.txt
 """
 }
 
-
+/*
 process NanoPlot{
   cpus 8
   tag "${sample_id} Nanoplot"
