@@ -81,7 +81,7 @@ input:
 path(bam) from sorted_bam_out
 
 output:
-  path("*.bam") into index_out
+  path("${bam}*") into index_out
 
 script:
 """
