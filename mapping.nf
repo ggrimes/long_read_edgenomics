@@ -74,7 +74,7 @@ S ${sam} |\
 """
 }
 
-/*
+
 process bam_index {
 
 input:
@@ -89,7 +89,7 @@ samtools index ${bam}
 """
 }
 
-
+/*
 process flagstat{
 
 publishDir "results/QC/stats"
