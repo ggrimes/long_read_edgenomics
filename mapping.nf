@@ -130,7 +130,7 @@ process NanoPlot{
   NanoPlot –t ${task.cpus} \
   --bam ${bam} \
   --loglength
-  -o ${sample_id}_nanoplot \ \
+  -o ${sample_id}_nanoplot  \
   --plots dot
   """
 }
