@@ -60,7 +60,7 @@ input:
 path(sam) from sam_out
 
 output:
-path(${sampleID}_sorted.bam) into sorted_bam_out
+path("${sampleID}_sorted.bam") into sorted_bam_out
 
 
 script:
