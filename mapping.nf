@@ -95,15 +95,16 @@ process flagstat{
 publishDir "results/QC/stats"
 
 input:
-   tuple(val(sampleID),path(files)) from index_out
+   path(bam_files) from index_out
 
 output:
   path("stat.txt")
 
 script:
+sampleID=${bam_files[0]}.simpleName()
 """
 samtools flagstat \
-SRR7449790_Av_CIP_mm2_sorted.bam > stats.txt
+${bam_files[0]} > stats.txt
 """
 }
 
