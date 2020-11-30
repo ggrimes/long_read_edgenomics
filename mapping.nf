@@ -76,17 +76,19 @@ S ${sam} |\
 
 
 process bam_index {
+  publishDir "results/QC/stats"
 
-input:
-path(bam) from sorted_bam_out
+  input:
+    path(bam) from sorted_bam_out
 
-output:
-  path("${bam}*") into index_out
+  output:
+    path("${bam}*") into index_out
+    tuple val("${bam}.simpleName"), file("${bam}*") into index_out
 
-script:
-"""
-samtools index ${bam}
-"""
+  script:
+  """
+   samtools index ${bam};
+  """
 }
 
 
@@ -95,16 +97,14 @@ process flagstat{
 publishDir "results/QC/stats"
 
 input:
-   path(bam_files) from index_out
+   tuple(val(sampleID), file(bam_files)) from index_out
 
 output:
   path("stat.txt")
 
 script:
-sampleID=${bam_files[0]}.simpleName()
 """
-samtools flagstat \
-${bam_files[0]} > stats.txt
+ samtools flagstat ${sampleID}.bam > stats.txt
 """
 }
 
