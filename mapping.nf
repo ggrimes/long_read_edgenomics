@@ -82,9 +82,10 @@ process bam_index {
     path(bam) from sorted_bam_out
 
   output:
-    tuple val("${bam.simpleName}"), file("${bam.simpleName()}*") into index_out
+    tuple val("${sampleName}"), file("${bam.simpleName}*") into index_out
 
   script:
+  sampleName=bam.simpleName
   """
    samtools index ${bam};
   """
@@ -99,15 +100,16 @@ input:
    tuple(val(sampleID), file(bam_files)) from index_out
 
 output:
-  path("stat.txt")
+  path("${sampleID}_stat.txt") into stat_out
+  path("${sampleID}.bam") into fbams
 
 script:
 """
- samtools flagstat ${sampleID}.bam > stats.txt
+ samtools flagstat ${sampleID}.bam > ${sampleID}_stats.txt
 """
 }
 
-/*
+
 process NanoPlot{
   cpus 8
   tag "${sample_id} Nanoplot"
@@ -115,7 +117,7 @@ process NanoPlot{
   publishDir "${params.outdir}/${sample_id}/QC",  mode:'copy'
 
   input:
-    path(bam) from bam_srt_ch
+    path(bam) from fbams
 
   output:
     path("${sample_id}_nanoplot")
@@ -125,11 +127,10 @@ process NanoPlot{
   script:
   sample_id =bam.simpleName
   """
-  NanoPlot –t 8 \
-  --bam SRR7449790_Av_CIP_mm2_sorted.bam \
+  NanoPlot –t ${task.cpus} \
+  --bam ${bam} \
   --loglength
   -o nanoplot_bam \
   --plots dot
   """
 }
-*/
