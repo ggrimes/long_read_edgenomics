@@ -127,7 +127,8 @@ process NanoPlot{
   script:
   sample_id =bam.simpleName
   """
-  NanoPlot –t ${task.cpus} \
+  NanoPlot \
+  -t ${task.cpus} \
   --bam ${bam} \
   --loglength
   -o ${sample_id}_nanoplot  \
