@@ -78,7 +78,7 @@ S ${sam} |\
 process bam_index {
 
 input:
-path(bam) from bam_index_out
+path(bam) from sorted_bam_out
 
 output:
 path("*.bam")
