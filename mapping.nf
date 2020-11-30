@@ -82,7 +82,7 @@ process bam_index {
     path(bam) from sorted_bam_out
 
   output:
-    tuple val("${sampleName}"), file("${bam}*") into index_out
+    tuple val("${sampleName}"), file("${bam}") into index_out
 
   script:
   sampleName=bam.simpleName
@@ -100,7 +100,7 @@ input:
    tuple(val(sampleID), file(bam_files)) from index_out
 
 output:
-  path("${sampleID}_stat.txt") into stat_out
+  path("${sampleID}_stats.txt") into stat_out
   path("${sampleID}.bam") into fbams
 
 script:
@@ -130,7 +130,7 @@ process NanoPlot{
   NanoPlot –t ${task.cpus} \
   --bam ${bam} \
   --loglength
-  -o nanoplot_bam \
+  -o ${sample_id}_nanoplot \ \
   --plots dot
   """
 }
