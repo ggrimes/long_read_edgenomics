@@ -95,7 +95,7 @@ process flagstat{
 publishDir "results/QC/stats"
 
 input:
-   tuple(val(sampleID),path(files)) from bam_index_out
+   tuple(val(sampleID),path(files)) from index_out
 
 output:
   path("stat.txt")
