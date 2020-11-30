@@ -82,7 +82,7 @@ process bam_index {
     path(bam) from sorted_bam_out
 
   output:
-    tuple val("${sampleName}"), file("${bam.simpleName}*") into index_out
+    tuple val("${sampleName}"), file("${bam}*") into index_out
 
   script:
   sampleName=bam.simpleName
