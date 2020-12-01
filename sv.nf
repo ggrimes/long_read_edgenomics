@@ -13,7 +13,7 @@ log.info """\
          """
          .stripIndent()
 
-include { nglmr;
+include { 
   sniffles;
   survivor;
   cutesv;
