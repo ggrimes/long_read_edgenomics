@@ -94,7 +94,7 @@ process cutesv {
   path(reference)
 
   output:
-  path("cuteSV.vcf")
+  path("${sampleID}_cuteSV.vcf")
 
   script:
   """
@@ -106,7 +106,7 @@ process cutesv {
   --diff_ratio_merging_DEL 0.3 \
   ${sampleID}.bam \
   ${reference} \
-  cuteSV.vcf \
+  ${sampleID}_cuteSV.vcf \
   .
   """
 

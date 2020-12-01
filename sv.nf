@@ -1,6 +1,6 @@
 nextflow.enable.dsl=2
 
-params.reads = "*.{bam,bai}"
+params.bam = "*.{bam,bai}"
 params.outdir = "results"
 params.reference = "/home/training/lr_genomic/Mapping/Av_TH0426.fna"
 
@@ -20,11 +20,13 @@ include { nglmr;
   survivor as s2;
   survivor as s3;
   survivor as s4;
+  filteringSV;
+  survmerge;
   } from './modules/sv.nf'
 
 
 Channel
-  .fromFilePairs(params.reads) { file -> file.name.replaceAll(/.bam|.bai$/,'') }
+  .fromFilePairs(params.bam) { file -> file.name.replaceAll(/.bam|.bai$/,'') }
   .set{bam_ch}
 
 Channel
@@ -46,7 +48,7 @@ complex structural variations.
 workflow {
   sniffles(bam_ch)
   survivor(sniffles.out)
-  cutesv(ngmlr.out,ref_ch)
+  cutesv(bam_ch,ref_ch)
   s2(cutesv.out)
   filteringSV(sniffles.out)
   s3(filteringSV.out)
