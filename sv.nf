@@ -16,16 +16,13 @@ log.info """\
 
 
 Channel
-  .fromFilePairs(params.reads)
+  .fromPath(params.reads)
   .set{read_ch}
 
 Channel
   .fromPath(params.reference)
   .set{ref_ch}
 
-
-
-read_ch.view()
 
 
 /*
@@ -44,9 +41,6 @@ process ngmlr {
     path(read_file)
     path(reference)
 
-  /*
-  sort sam file and export to bam
-  */
   output:
   path("${sampleID}_sorted.bam*")
 
@@ -91,7 +85,7 @@ process sniffles {
   path("${sampleID}_sniffles.vcf")
 
   script:
-  sampleID=read_file.simpleName
+  sampleID=bam[0].simpleName
   """
   sniffles \
   -m ${sampleID}.bam \
@@ -111,23 +105,77 @@ process survivor {
   path(vcf)
 
   output:
-  path("sniffles_summary.txt")
+  path("${sampleID}_summary.txt")
 
   script:
+  sampleID=vcf.simpleName
   """
   SURVIVOR stats \
   ${vcf} \
   -1 \
   -1 \
-  -1 sniffles_summary_stats >\
-  sniffles_summary.txt
+  -1 ${sampleID}_summary_stats > \
+  ${sampleID}_summary.txt
   """
 
 }
 
+process cutesv {
+  publishDir "results/SV"
+  tag "cuteSV"
+  cpus 8
+
+  input:
+  path(bam)
+  path(reference)
+
+  output:
+  path("cuteSV.vcf")
+
+  script:
+  """
+  cuteSV \
+  -t ${task.cpus} \
+  --max_cluster_bias_INS 100 \
+  --diff_ratio_merging_INS 0.3 \
+  --max_cluster_bias_DEL 100 \
+  --diff_ratio_merging_DEL 0.3 \
+  ${bam} \
+  ${reference} \
+  cuteSV.vcf \
+  ./cutesv_temp/
+  """
+
+}
+
+/*
+The SVs are classified as PRECISE or IMPRECISE based on the breakpoint locations by sniffles.
+We will only retain PRECISE variants called by sniffles:
+*/
+process filteringSV {
+ publishDir "results/SV"
+
+ input:
+ path(vcf)
+
+ output:
+ path("${sampleID}_precise.vcf")
+
+ script:
+ sampleID=vcf.simpleName
+
+ """
+ grep -v "IMPRECISE" ${vcf} > ${sampleID}_precise.vcf
+ """
+
+}
 
 workflow {
   ngmlr(read_ch,ref_ch)
   sniffles(ngmlr.out)
   survivor(sniffles.out)
+  cutesv(ngmlr.out,ref_ch)
+  survivor(cutesv.out)
+  filteringSV(sniffles.out)
+  survivor(filteringSV.out)
 }
