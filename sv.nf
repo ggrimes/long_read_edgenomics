@@ -36,27 +36,28 @@ align PacBio or Oxford Nanopore reads to (large) reference genomes including tho
 complex structural variations.
 */
 
-process ngmlr{
+process ngmlr {
   cpus 8
   tag "${sampleID} ngmlr mapping"
 
   input:
-    tuple(val(sampleID),path(read_file))
+    path(read_file)
     path(reference)
 
   /*
   sort sam file and export to bam
   */
   output:
-  path("${sampleID}_sorted.bam*") into sam_out
+  path("${sampleID}_sorted.bam*")
 
   script:
+  sampleID=read_file.simpleName
   """
   ngmlr \
   -t ${task.cpus} \
   -r ${reference} \
   -x ont \
-  -q ${sampleID}.fastq.gz
+  -q ${sampleID}.fastq.gz \
   -o ${sampleID}.sam;
 
   samtools view \
@@ -67,11 +68,66 @@ process ngmlr{
   samtools index \
   ${sampleID}_sorted.bam
   """
+}
+
+/*
+Calling Structural Variants
+We will explore two SV callers: Sniffles and CuteSV. Sniffles is quite prominent in the field and
+has been used widely to detect SVs from long reads generated from both PacBio and
+Nanopore platforms. CuteSV, however is relatively new and is targeting Nanopore data in
+particular. It is always a good idea to use more than one SV caller as the efficiency of the latter
+depends on the data type along with the SV type and size and using more than one SVcaller
+will give us more confidence for a call made.
+*/
+process sniffles {
+  cpus 8
+  publishDir "results/SV"
+  tag "${sampleID} sniffles sv calling"
+
+  input:
+  path(bam)
+
+  output:
+  path("${sampleID}_sniffles.vcf")
+
+  script:
+  sampleID=read_file.simpleName
+  """
+  sniffles \
+  -m ${sampleID}.bam \
+  -v ${sampleID}_sniffles.vcf \
+  -t 8
+  """
 
 }
 
-worflow {
+/*
+SURVIVOR stats sniffles.vcf -1 -1 -1 sniffles_summary_stats >
+sniffles_summary.txt
+*/
+process survivor {
+  publishDir "results/SV"
+  input:
+  path(vcf)
 
-ngmlr(read_ch,ref_ch)
+  output:
+  path("sniffles_summary.txt")
 
+  script:
+  """
+  SURVIVOR stats \
+  ${vcf} \
+  -1 \
+  -1 \
+  -1 sniffles_summary_stats >\
+  sniffles_summary.txt
+  """
+
+}
+
+
+workflow {
+  ngmlr(read_ch,ref_ch)
+  sniffles(ngmlr.out)
+  survivor(sniffles.out)
 }
