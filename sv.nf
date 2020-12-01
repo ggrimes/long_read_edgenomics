@@ -22,9 +22,9 @@ include { nglmr;
   survivor as s4;
   } from './modules/sv.nf'
 
- 
+
 Channel
-  .fromFilePairs(params.reads)
+  .fromFilePairs(params.reads) { file -> file.name.replaceAll(/.bam|.bai$/,'') }
   .set{bam_ch}
 
 Channel
