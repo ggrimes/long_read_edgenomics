@@ -1,4 +1,5 @@
-params.accession = 'SRR7449790'
+nextflow.enable.dsl=2
+
 params.reads = "$baseDir/data/*_{1,2}.fastq."
 params.outdir = "results"
 params.reference = "/home/training/lr_genomic/Mapping/Av_TH0426.fna"
@@ -24,7 +25,7 @@ Channel
 
 
 
-
+read_ch.view()
 
 
 /*
@@ -40,8 +41,8 @@ process ngmlr{
   tag "${sampleID} ngmlr mapping"
 
   input:
-    tuple(val(sampleID),path(read_file)) from read_ch
-    path(reference) from ref_ch
+    tuple(val(sampleID),path(read_file))
+    path(reference)
 
   /*
   sort sam file and export to bam
@@ -69,4 +70,8 @@ process ngmlr{
 
 }
 
-sam_out.view()
+worflow {
+
+ngmlr(read_ch,ref_ch)
+
+}
