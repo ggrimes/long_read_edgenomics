@@ -44,13 +44,12 @@ process sniffles {
   tag "${sampleID} sniffles sv calling"
 
   input:
-  path(bam)
+  tuple(val(sampleID),file(bam))
 
   output:
   path("${sampleID}_sniffles.vcf")
 
   script:
-  sampleID=bam[0].simpleName
   """
   sniffles \
   -m ${sampleID}.bam \
@@ -91,7 +90,7 @@ process cutesv {
   cpus 8
 
   input:
-  path(bam)
+  tuple(val(sampleID),file(bam))
   path(reference)
 
   output:
@@ -105,7 +104,7 @@ process cutesv {
   --diff_ratio_merging_INS 0.3 \
   --max_cluster_bias_DEL 100 \
   --diff_ratio_merging_DEL 0.3 \
-  ${bam[0]} \
+  ${sampleID}.bam \
   ${reference} \
   cuteSV.vcf \
   .
@@ -131,6 +130,32 @@ process filteringSV {
 
  """
  grep -v "IMPRECISE" ${vcf} > ${sampleID}_precise.vcf
+ """
+
+}
+
+
+/*
+merge vcf files
+*/
+process survmerge {
+ publishDir "results/SV"
+
+ input:
+ path(vcf1)
+ path(vcf2)
+
+ output:
+ path("Survivor_merged.vcf")
+
+ script:
+
+ """
+ ls ${vcf1} ${vcf2} > sample_files;
+ SURVIVOR merge \
+ sample_files \
+ 1000 2 1 1 1 30 \
+ Survivor_merged.vcf
  """
 
 }
