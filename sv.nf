@@ -35,13 +35,7 @@ Channel
 
 
 
-/*
-3.3 Mapping to the reference using NGMLR
-We will use another long-read mapper: CoNvex Gap-cost alignMents for Long Reads (ngmlr)
-to align reads to the reference genome. This is a long-read mapper designed to sensitively
-align PacBio or Oxford Nanopore reads to (large) reference genomes including those spanning
-complex structural variations.
-*/
+
 
 
 
