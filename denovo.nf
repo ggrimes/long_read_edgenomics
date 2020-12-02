@@ -2,7 +2,10 @@
 params.reads="R10_q9l500.fastq.gz"
 params.genomeSize="5M"
 params.conf="shasta.conf"
-
+params.flyout="flye"
+params.shastaout="shasta"
+params.quastout="quast_flye_shasta"
+params.reference="reference/K12_MG1655.fna"
 
 
 log.info """\
@@ -10,6 +13,8 @@ log.info """\
          ===================================
          reads           : ${params.reads}
          genomeSize      : ${params.genomeSize}
+         flyout          : ${params.flyout}
+}
          """
          .stripIndent()
 
@@ -26,7 +31,6 @@ be used at a later stage.
 
 
 /*
-4.3 Generate de novo genome assembly
 Flye is one of the most widely used tools for assembling genomes from long noisy reads.
 Shasta is a relatively new assembler but is extremely fast in generating assemblies. Both of
 them are designed for a wide range of datasets from small bacteria to large mammals. It is
@@ -44,23 +48,29 @@ Channel
     .fromPath(params.conf)
     .set{conf}
 
-
+Channel
+     .fromPath(params.reference)
+     .set{reference}
 
 process flye {
+  tags "flye assembly ${sampleID}"
+  label "highmem"
   cpus 8
+  publishDir "results", mode: 'copy'
 
   input:
   path(reads)
 
   output:
-  path("assembly*") into assembly_ch
+  path("${params.flyout}") into flyeout
 
   script:
+  sampleID=reads.simpleName
   """
   flye \
   --nano-raw  ${reads}\
   -g ${params.genomeSize} \
-  -o flye \
+  -o ${params.flyout} \
   -t ${task.cpus}
   """
 
@@ -78,19 +88,24 @@ Channel
 
 process shasta {
   cpus 8
+  publishDir "results", mode: 'copy'
 
   input:
   path(reads)
   path(conf)
+
+  output:
+  path("shasta") into shastaout
+
   script:
   sampleID=reads.simpleName
   """
-
+  #shasta need unzip reads
   gunzip -c ${reads} > ${sampleID}.fastq
 
   shasta \
   --input ${sampleID}.fastq \
-  --assemblyDirectory shasta \
+  --assemblyDirectory ${params.shastaout} \
   --threads  ${task.cpus}  \
   --config ${conf}
   """
@@ -107,19 +122,27 @@ QUAST can evaluate assemblies both with a reference genome, as well as without a
 /*
 process quast {
 cpus 8
+publishDir "results", mode: 'copy'
+
+  input:
+  path(flyeout)
+  path(shastaout)
+  path(reference)
+
+  output:
+  path("{params.quastout}")
+
   script:
   """
   quast \
-  -o quast_flye_shasta \
+  -o ${params.quastout} \
   -t ${task.cpus} \
-  --labels flye,shasta
-  flye/assembly.fasta shasta/Assembly.fasta \
-  -r reference/K12_MG1655.fna
+  --labels flye,shasta ${flyeout}/assembly.fasta ${shastaout}/Assembly.fasta \
+  -r ${reference}
   """
-
 }
-
 */
+
 
 /*
 BUSCO:
