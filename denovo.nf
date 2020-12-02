@@ -50,7 +50,7 @@ process flye {
 
   script:
   """
-  flye
+  flye \
   --nano-raw  ${reads}\
   -g 5M \
   -o flye \
@@ -97,7 +97,7 @@ QUAST is a quality assessment tool for evaluating and comparing genome assemblie
 QUAST can evaluate assemblies both with a reference genome, as well as without a reference.
 */
 
-
+/*
 process quast {
 cpus 8
   script:
@@ -112,7 +112,7 @@ cpus 8
 
 }
 
-
+*/
 
 /*
 BUSCO:
@@ -122,7 +122,7 @@ OrthoDB’s sets of Benchmarking Universal Single-Copy Orthologs. We will run th
 both assemblies generated so far.
 */
 
-
+/*
 prcoess busco {
 
   input:
@@ -136,4 +136,4 @@ prcoess busco {
   genome -l gammaproteobacteria_odb10/ -f -c 8");
   done | bash
   """
-}
+}*/
