@@ -9,11 +9,13 @@ params.reference="reference/K12_MG1655.fna"
 
 
 log.info """\
-         LR_MAPPING - N F   P I P E L I N E
+         LR_ASSEMBLY - N F   P I P E L I N E
          ===================================
          reads           : ${params.reads}
          genomeSize      : ${params.genomeSize}
-         flyout          : ${params.flyout}
+         reference       : ${params.reference}
+         flyout          : results/${params.flyout}
+         shastaout       : results/${params.shastaout}
 }
          """
          .stripIndent()
@@ -53,7 +55,7 @@ Channel
      .set{reference}
 
 process flye {
-  tags "flye assembly ${sampleID}"
+  tag "flye assembly ${sampleID}"
   label "highmem"
   cpus 8
   publishDir "results", mode: 'copy'
@@ -119,7 +121,7 @@ QUAST is a quality assessment tool for evaluating and comparing genome assemblie
 QUAST can evaluate assemblies both with a reference genome, as well as without a reference.
 */
 
-/*
+
 process quast {
 cpus 8
 publishDir "results", mode: 'copy'
@@ -141,15 +143,15 @@ publishDir "results", mode: 'copy'
   -r ${reference}
   """
 }
-*/
+
 
 
 /*
 BUSCO:
 BUSCO provides a rich source of data to assess the quality and completeness of
 genome assemblies, gene annotations, and transcriptomes by comparing them to
-OrthoDB’s sets of Benchmarking Universal Single-Copy Orthologs. We will run this on
-both assemblies generated so far.
+OrthoDB’s sets of Benchmarking Universal Single-Copy Orthologs.
+We will run this on both assemblies generated so far.
 */
 
 /*
