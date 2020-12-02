@@ -54,6 +54,7 @@ Channel
      .fromPath(params.reference)
      .set{reference}
 
+ 
 process flye {
   tag "flye assembly ${sampleID}"
   label "highmem"
