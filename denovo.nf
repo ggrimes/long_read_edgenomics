@@ -160,7 +160,9 @@ We will run this on both assemblies generated so far.
 */
 
 
+
 process busco {
+  tag "busco ${sampleID}"
   cpus 8
   publishDir "results", mode: 'copy'
 
@@ -177,8 +179,7 @@ process busco {
   busco \
   -i ${assembly}/*.fasta \
   -o ${sampleID}_busco \
-  -m
-  genome \
+  -m genome \
   -l busco/gammaproteobacteria_odb10/ \
   -f \
   -c ${task.cpus}
