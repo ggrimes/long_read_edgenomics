@@ -5,7 +5,7 @@ params.outdir = "results"
 params.reference = "/home/training/lr_genomic/Mapping/Av_TH0426.fna"
 
 log.info """\
-         LR - N F   P I P E L I N E
+         LR_SV - N F   P I P E L I N E
          ===================================
          bam           : ${params.bam}
          outdir          : ${params.outdir}
@@ -13,7 +13,7 @@ log.info """\
          """
          .stripIndent()
 
-include { 
+include {
   sniffles;
   survivor;
   cutesv;
@@ -32,11 +32,6 @@ Channel
 Channel
   .fromPath(params.reference)
   .set{ref_ch}
-
-
-
-
-
 
 
 workflow {

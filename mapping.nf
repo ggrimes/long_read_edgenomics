@@ -44,6 +44,7 @@ script:
   minimap2 \
   -t ${task.cpus}  \
   -x map-ont \
+  --MD \
   -a ${reference} \
   ${read_file} \
   > ${sampleID}_mm2.sam

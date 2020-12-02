@@ -45,6 +45,7 @@ process NanoPlot {
 
   output:
     path("${sample_id}_nanoplot")
+    path("${reads_file}") into read_out_ch
 
   script:
   """
@@ -55,4 +56,37 @@ process NanoPlot {
   -o ${sample_id}_nanoplot \
   --plots dot
   """
+}
+
+
+
+process NanoFilt {
+
+input:
+   tuple sample_id, file(reads_file) from read_pairs_ch
+
+script:
+sample_id=reads.simpleName()
+"""
+  gunzip -c SRR7449790_Av_CIP.fastq.gz |\
+  NanoFilt \
+  -q 9 \
+  -l 500 | \
+  gzip > SRR7449790_Av_CIP_trimmed.fastq.gz
+"""
+}
+
+
+process Nanocomp {
+
+input:
+path(reads) from filt_out.collect()
+
+script:
+"""
+NanoComp \
+--fastq ${reads} \
+--names Av_CIP Av_CIP_trim \
+-o Av_Nanocomp
+"""
 }
