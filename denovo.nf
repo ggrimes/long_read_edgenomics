@@ -6,7 +6,7 @@ params.flyout="flye"
 params.shastaout="shasta"
 params.quastout="quast_flye_shasta"
 params.reference="reference/K12_MG1655.fna"
-
+params.busco_dir="busco"
 
 log.info """\
          LR_ASSEMBLY - N F   P I P E L I N E
@@ -54,6 +54,10 @@ Channel
      .fromPath(params.reference)
      .set{reference}
 
+Channel
+      .fromPath(params.busco_dir)
+      .set{busco}
+
 
 process flye {
   tag "flye assembly ${sampleID}"
@@ -65,7 +69,7 @@ process flye {
   path(reads)
 
   output:
-  path("${params.flyout}") into flyeout
+  path("${params.flyout}") into flyeout,flyeout2
 
   script:
   sampleID=reads.simpleName
@@ -98,7 +102,7 @@ process shasta {
   path(conf)
 
   output:
-  path("shasta") into shastaout
+  path("shasta") into shastaout,shastaout2
 
   script:
   sampleID=reads.simpleName
@@ -154,19 +158,29 @@ genome assemblies, gene annotations, and transcriptomes by comparing them to
 OrthoDB’s sets of Benchmarking Universal Single-Copy Orthologs.
 We will run this on both assemblies generated so far.
 */
+flyeout2.concat(shastaout2)
 
-/*
-prcoess busco {
+process busco {
+  cpus 8
+  publishDir "results", mode: 'copy'
 
   input:
+  path(assembly) from flyeout2
+  path(busco)
 
+  output:
+  path("${sampleID}_busco")
 
   script:
+  sampleID=assembly.simpleName
   """
-  for i in flye shasta;
-  do
-  (echo "busco -i $i.fasta -o ${i}_busco -m
-  genome -l gammaproteobacteria_odb10/ -f -c 8");
-  done | bash
+  busco \
+  -i ${assembly}/*.fasta \
+  -o ${sampleID}_busco \
+  -m
+  genome \
+  -l gammaproteobacteria_odb10/ \
+  -f \
+  -c ${task.cpus}
   """
-}*/
+}
