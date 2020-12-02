@@ -179,7 +179,7 @@ process busco {
   -o ${sampleID}_busco \
   -m
   genome \
-  -l gammaproteobacteria_odb10/ \
+  -l busco/gammaproteobacteria_odb10/ \
   -f \
   -c ${task.cpus}
   """
