@@ -158,14 +158,14 @@ genome assemblies, gene annotations, and transcriptomes by comparing them to
 OrthoDB’s sets of Benchmarking Universal Single-Copy Orthologs.
 We will run this on both assemblies generated so far.
 */
-flyeout2.concat(shastaout2)
+
 
 process busco {
   cpus 8
   publishDir "results", mode: 'copy'
 
   input:
-  path(assembly) from flyeout2
+  path(assembly) from flyeout2.concat(shastaout2)
   path(busco)
 
   output:
