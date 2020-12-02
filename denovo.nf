@@ -1,6 +1,7 @@
 
 params.reads="R10_q9l500.fastq.gz"
-
+params.genomeSize="5M"
+params.conf="shasta.conf"
 
 
 
@@ -8,6 +9,7 @@ log.info """\
          LR_MAPPING - N F   P I P E L I N E
          ===================================
          reads           : ${params.reads}
+         genomeSize      : ${params.genomeSize}
          """
          .stripIndent()
 
@@ -38,6 +40,11 @@ Channel
   .fromPath(params.reads)
   .set{reads}
 
+Channel
+    .fromPath(params.conf)
+    .set{conf}
+
+
 
 process flye {
   cpus 8
@@ -52,7 +59,7 @@ process flye {
   """
   flye \
   --nano-raw  ${reads}\
-  -g 5M \
+  -g ${params.genomeSize} \
   -o flye \
   -t ${task.cpus}
   """
@@ -74,7 +81,7 @@ process shasta {
 
   input:
   path(reads)
-
+  path(conf)
   script:
   sampleID=reads.simpleName
   """
@@ -85,7 +92,7 @@ process shasta {
   --input ${sampleID}.fastq \
   --assemblyDirectory shasta \
   --threads  ${task.cpus}  \
-  --config shasta.conf
+  --config ${conf}
   """
 }
 
